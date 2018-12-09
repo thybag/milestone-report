@@ -41,8 +41,8 @@ class Report
 		if (isset($_GET['repo'])) {
 			$repo = $_GET['repo'];
 		} else {
-			// Get latest
-			$repo = $this->repos[0]['name'];
+			// Get latest (or use default)
+			$repo = isset($this->config['repo']) ? $this->config['repo'] : $this->repos[0]['name'];
 		}
 
 		$this->milestones = $this->getMilestones($repo);
@@ -61,7 +61,7 @@ class Report
 		// Get the issues
 		$issues = $this->getIssues($repo, $milestone);
 
-		if (sizeof($issues) == 0){
+		if (!$issues || sizeof($issues) == 0){
 			return $this->error("Milestone empty or not found", $repo);
 		}
 

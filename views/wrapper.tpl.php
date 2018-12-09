@@ -35,28 +35,7 @@
 			margin-bottom:2rem;
 		}
 
-		@media (min-width: 990px) {
-			main {
-				margin-left: auto;
-				margin-right: auto;
-			}
-			.row {
-				display:flex;
-			}
-			.row + .row {
-				margin-bottom:1rem;
-			}
-			.row > div {
-				flex: 1;
-				margin: 10px;
-			}
-			.row > div:first-child {
-				margin-left: 0px;
-			}
-			.row > div:last-child {
-				margin-right: 0px;
-			}
-		}
+
 
 		.headline {
 	   		
@@ -83,7 +62,7 @@
 		.bar {
 			background: #444; padding:.8rem 1rem ;
 		}
-		.bar form {float:right; }
+		
 		.bar:after {
 			content: "";
 			display: table;
@@ -93,11 +72,39 @@
 			color: #fff;
 			padding:0;margin:0;
 			font-size:1.1rem;	
-			float:left;
 			font-weight: normal;
 			line-height: 1.82rem;
 		}
-		.bar select, .bar input {padding: .3rem;}
+		.bar select, .bar input {padding: .3rem; width: 100%;}
+
+		@media (min-width: 600px) {
+			.bar select, .bar input { width: auto;}
+		}
+		@media (min-width: 990px) {
+			.bar form {float:right; }
+			.bar h1 {float:left;}
+
+			main {
+				margin-left: auto;
+				margin-right: auto;
+			}
+			.row {
+				display:flex;
+			}
+			.row + .row {
+				margin-bottom:1rem;
+			}
+			.row > div {
+				flex: 1;
+				margin: 10px;
+			}
+			.row > div:first-child {
+				margin-left: 0px;
+			}
+			.row > div:last-child {
+				margin-right: 0px;
+			}
+		}
 	</style>
 		
 	</head>
