@@ -105,9 +105,15 @@
 		<div class='bar'>
 			<h1>Milestone report</h1>
 			<form method="GET">
+				<select placeholder="Repo.." name='repo'>
+
+					<?php foreach($repos as $r): ?>
+						<option value="<?=$r['name']?>" <?php if($r['name']==$repo_name): ?>selected="selected"<?php endif;?>> <?=$r['name']?></option>
+					<?php endforeach; ?>
+				</select>	
 				<select placeholder="Milestone..." name='milestone'>
 					<?php foreach($milestones as $milestone): ?>
-						<option value="<?=$milestone['number']?>" style="<?=$milestone['state']=='closed'?'color:grey':''?>"><?=$milestone['title']?></i>
+						<option value="<?=$milestone['number']?>" style="<?=$milestone['state']=='closed'?'color:grey':''?>" <?php if($milestone['number']==$milestone_id): ?>selected="selected"<?php endif;?>><?=$milestone['title']?></option>
 					<?php endforeach; ?>
 				</select>
 				<input type='submit' value='View'>

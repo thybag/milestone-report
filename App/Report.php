@@ -12,7 +12,8 @@ use thybag\PhpSimpleCache\StaticCache as Cache;
 class Report 
 {
 	protected $config = [];
-
+	protected $repos;
+	protected $milestones;
 		
 	/**
 	 * Setup auth
@@ -31,19 +32,38 @@ class Report
 	 */
 	public function run()
 	{
+		Cache::fresh(['allow_cache_bypass' => true]);
+
 		// Get data
-		$milestones = $this->getMilestones();
+		$this->repos = $this->getRepos();
+
+		// Url options
+		if (isset($_GET['repo'])) {
+			$repo = $_GET['repo'];
+		} else {
+			// Get latest
+			$repo = $this->repos[0]['name'];
+		}
+
+		$this->milestones = $this->getMilestones($repo);
+		if (sizeof($this->milestones) == 0){
+			return $this->error("This repo has no milestones.", $repo);
+		}
 
 		// Url options
 		if (isset($_GET['milestone'])) {
 			$milestone = $_GET['milestone'];
 		} else {
 			// Get latest
-			$milestone = $milestones[0]['number'];
+			$milestone = $this->milestones[0]['number'];
 		}
 		
 		// Get the issues
-		$issues = $this->getIssues($milestone);
+		$issues = $this->getIssues($repo, $milestone);
+
+		if (sizeof($issues) == 0){
+			return $this->error("Milestone empty or not found", $repo);
+		}
 
 		// seperate em out
 		$groups = ['Complete' => [], 'Pending'=> []];
@@ -59,7 +79,10 @@ class Report
 		// Render it all
 		return new View('views/wrapper', [
 			'content' => 'main',
-			'milestones'=> $milestones,
+			'repos' => $this->repos ,
+			'repo_name' => $repo,
+			'milestone_id' => $milestone,
+			'milestones'=> $this->milestones,
 			'data' => [
 				'top_submit' => IssueStats::topSumbitters($issues),
 				'top_assigned' => IssueStats::topAssigned($issues),
@@ -72,17 +95,30 @@ class Report
 		]);
 	}
 
+	public function error($message, $repo)
+	{
+		// Render it all
+		return new View('views/wrapper', [
+			'content' => 'error',
+			'repo_name' => $repo,
+			'milestone_id' => null,
+			'repos' => $this->repos ,
+			'milestones'=> $this->milestones,
+			'data' => ['message' => $message] 
+		]);
+	}
+
 	/**
 	 * Get milestones
 	 * 
 	 * @param  [type] $auth [description]
 	 * @return [type]       [description]
 	 */
-	protected function getMilestones()
+	protected function getMilestones($repo)
 	{
-		return Cache::get("repo-{$this->config['repo']}.milestones", function() {
+		return Cache::get("repo-{$repo}.milestones", function() use($repo) {
 			$grabber = new GithubIssueReader($this->config);
-			$milestones = $grabber->getMilestones();
+			$milestones = $grabber->getMilestones($repo);
 
 			usort($milestones,function($a, $b){
 				if($a['state'] == 'open' && $b['state'] == 'closed'){
@@ -98,6 +134,20 @@ class Report
 			return $milestones;
 		}, 500);
 	}
+
+	/**
+	 * Get repos
+	 * 
+	 * @param  [type] $auth [description]
+	 * @return [type]       [description]
+	 */
+	protected function getRepos()
+	{
+		return Cache::get("repos", function() {
+			$grabber = new GithubIssueReader($this->config);	
+			return $grabber->getRepos();
+		}, 500);
+	}
 	
 	/**
 	 * Get issues for milestone
@@ -106,11 +156,11 @@ class Report
 	 * @param  [type] $auth      [description]
 	 * @return [type]            [description]
 	 */
-	protected function getIssues($milestone)
+	protected function getIssues($repo, $milestone)
 	{
-		return Cache::get("repo-{$this->config['repo']}.issues.milestione-$milestone", function() use ($milestone) {
+		return Cache::get("repo-{$repo}.issues.milestione-$milestone", function() use ($repo, $milestone) {
 			$grabber = new GithubIssueReader($this->config);
-			return $grabber->getAllMilestoneIssues($milestone);
+			return $grabber->getMilestoneIssues($repo, $milestone);
 		}, 100);
 	}
 }

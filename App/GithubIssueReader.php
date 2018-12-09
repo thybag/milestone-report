@@ -8,14 +8,25 @@ class GithubIssueReader
 	protected $settings = [];
 	protected $client = null;
 
-	public function __construct($settings){
+	public function __construct($settings)
+	{
 		$this->settings = $settings;
 		$this->client = new \GuzzleHttp\Client(['verify' => false]);	
 	}
 
-	public function getMilestoneIssues($milestone, $page = 1)
+	public function getMilestoneIssues($repo, $milestone)
 	{
-		return $this->query("/issues?milestone={$milestone}&page={$page}&state=all");
+		return $this->getAllResults("/{$repo}/issues?milestone={$milestone}&state=all");
+	}
+
+	public function getMilestones($repo)
+	{
+		return $this->getAllResults("/{$repo}/milestones?state=all");
+	}
+
+	public function getRepos()
+	{
+		return $this->query("https://api.github.com/user/repos", false);
 	}
 
 	protected function getAllResults($query)
@@ -34,40 +45,23 @@ class GithubIssueReader
 		return $data;
 	}
 
-	public function getAllMilestoneIssues($milestone) {
-		$page = 1;
-		$still_more = true;
-		$data = [];
-		while($still_more) {
-			$new = $this->getMilestoneIssues($milestone, $page);
-			if (sizeof($new) < 30) {
-				$still_more = false;
-			}
-			$data = array_merge($data, $new);
-			$page++;
-		}
-		return $data;
-	}
-
-	public function getMilestones()
+	protected function query($url, $prefix = true)
 	{
-		return $this->getAllResults("/milestones?state=all");
-	}
+		$url = $prefix ? $this->getRepoUrl().$url : $url;
 
-	protected function query($url)
-	{
-		$res = $this->client->request('GET', $this->getRepoUrl().$url, [
+		$res = $this->client->request('GET', $url, [
 			"headers" => [
 				"Accept" => "application/vnd.github.v3+json",
 				"User-Agent" => "GH stats output",
 				"Authorization" => "token ".$this->settings['auth_token']
 			]
 		]);
+		//die(json_decode($res->getBody(), true));
 		return json_decode($res->getBody(), true);
 	}
 
 	protected function getRepoUrl()
 	{
-		return "https://api.github.com/repos/{$this->settings['owner']}/{$this->settings['repo']}";
+		return "https://api.github.com/repos/{$this->settings['owner']}";
 	}
 }
