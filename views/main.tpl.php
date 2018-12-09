@@ -1,7 +1,7 @@
 <h1><?=$milestone['title']?></h1>
 
 <div class="row headline">
-	<?php $this->view('top-5',['title'=> 'Top 5 sumbitters', 'results'=> $top_submit]); ?>
+	<?php $this->view('top-5',['title'=> 'Top 5 submitters', 'results'=> $top_submit]); ?>
 	<?php $this->view('top-5',['title'=> 'Top 5 assigned', 'results'=> $top_assigned]); ?>
 	<?php $this->view('top-5',['title'=> 'Top 5 labels', 'results'=> $top_labeled ,'link' => false]); ?>
 </div>
@@ -24,6 +24,7 @@
 	</div>
 <?php endforeach;?>
 
-
-<h2>Raw data</h2>
-<pre><?=print_r($allIssues, true)?></pre>
+<?php if($debug): ?>
+	<h2>Raw data</h2>
+	<pre><?=print_r($allIssues, true)?></pre>
+<?php endif;?>

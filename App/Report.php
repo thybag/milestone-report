@@ -66,7 +66,8 @@ class Report
 				'top_labeled' => IssueStats::topLabels($issues),
 				'allIssues' => $issues,
 				'groups' => $groups,
-				'milestone' => $issues[0]['milestone']
+				'milestone' => $issues[0]['milestone'],
+				'debug' => (isset($this->config['debug']) && $this->config['debug']===true)
 			]
 		]);
 	}
