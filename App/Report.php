@@ -80,7 +80,7 @@ class Report
 	 */
 	protected function getMilestones()
 	{
-		return Cache::get("milestones", function() {
+		return Cache::get("repo-{$this->config['repo']}.milestones", function() {
 			$grabber = new GithubIssueReader($this->config);
 			$milestones = $grabber->getMilestones();
 
@@ -108,7 +108,7 @@ class Report
 	 */
 	protected function getIssues($milestone)
 	{
-		return Cache::get("issues.milestione-$milestone", function() use ($milestone) {
+		return Cache::get("repo-{$this->config['repo']}.issues.milestione-$milestone", function() use ($milestone) {
 			$grabber = new GithubIssueReader($this->config);
 			return $grabber->getAllMilestoneIssues($milestone);
 		}, 100);
