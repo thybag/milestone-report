@@ -5,5 +5,5 @@ require 'vendor/autoload.php';
 require 'config.php';
 
 // Go!
-$report = new App\Report($config);
+$report = new App\Report(isset($config) ? $config : null);
 echo $report->run();

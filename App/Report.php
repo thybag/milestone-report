@@ -34,8 +34,15 @@ class Report
 	{
 		Cache::fresh(['allow_cache_bypass' => true]);
 
+		if (!$this->config) {
+			return $this->error("Config file missing", 'unknown');
+		}
+
 		// Get data
 		$this->repos = $this->getRepos();
+		if (sizeof($this->repos) == 0 || $this->repos === false) {
+			return $this->error("Unable to load repos - please check your github token is correct.", 'unknown');
+		}
 
 		// Url options
 		if (isset($_GET['repo'])) {
@@ -95,6 +102,13 @@ class Report
 		]);
 	}
 
+	/**
+	 * Show error if unable to load
+	 * 
+	 * @param  [type] $message [description]
+	 * @param  [type] $repo    [description]
+	 * @return [type]          [description]
+	 */
 	public function error($message, $repo)
 	{
 		// Render it all
@@ -102,8 +116,8 @@ class Report
 			'content' => 'error',
 			'repo_name' => $repo,
 			'milestone_id' => null,
-			'repos' => $this->repos ,
-			'milestones'=> $this->milestones,
+			'repos' => is_array($this->repos) ? $this->repos : [],
+			'milestones'=> is_array($this->milestones) ? $this->milestones : [],
 			'data' => ['message' => $message] 
 		]);
 	}
